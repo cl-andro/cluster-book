@@ -1,0 +1,26 @@
+title: "The Cluster Book"
+description: "Official documentation and language guide for Cluster-lang — the high-performance systems language with Pythonic readability and C++ execution speed."
+baseurl: ""
+url: "https://cl-andro.github.io/cluster-book"
+
+markdown: kramdown
+highlighter: rouge
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+plugins:
+  - jekyll-seo-tag
+
+collections:
+  chapters:
+    output: true
+    permalink: /:path/
+
+defaults:
+  - scope:
+      path: ""
+      type: "chapters"
+    values:
+      layout: "chapter"

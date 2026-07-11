@@ -1,0 +1,19 @@
+---
+layout: default
+---
+
+{{ content }}
+
+<div class="chapter-nav">
+    {% if page.prev_chapter %}
+    <a href="{{ page.prev_chapter | relative_url }}">← {{ page.prev_title }}</a>
+    {% else %}
+    <span></span>
+    {% endif %}
+
+    {% if page.next_chapter %}
+    <a href="{{ page.next_chapter | relative_url }}">{{ page.next_title }} →</a>
+    {% else %}
+    <span></span>
+    {% endif %}
+</div>
