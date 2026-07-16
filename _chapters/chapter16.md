@@ -27,7 +27,7 @@ graph TD
 
 ### Key Differences:
 * **No Ruby VM:** Bypasses slow Ruby VM start-up times entirely.
-* **Pre-rendered Loops:** Liquid loops (`{% for post in site.posts %}`) and dot-path properties (`{{ site.author.name }}`) are pre-rendered into standard HTML during parsing.
+* **Pre-rendered Loops:** Liquid loops (`{% raw %}{% for post in site.posts %}{% endraw %}`) and dot-path properties (`{% raw %}{{ site.author.name }}{% endraw %}`) are pre-rendered into standard HTML during parsing.
 * **Layout Components:** Standard HTML layouts are compiled into native `.clx` layout components.
 
 ---
