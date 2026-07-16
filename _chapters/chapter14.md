@@ -16,7 +16,7 @@ Cluster-lang is built from the ground up to offer two distinct advantages: **mic
 
 ## 1. Native Compiler Releases (Zero-Dependency Workflow)
 
-Normally, compiling Cluster-lang scripts utilizes the developer runtime runner (`python3 run.py <file.cl>`). However, in production and production-ready developer machines, installing Python, Lark, and LLVM is unnecessary. 
+Normally, compiling Cluster-lang scripts utilizes the local developer compilation command (`cluster <file.cl>`). However, in production and production-ready developer machines, installing Python, Lark, and LLVM is unnecessary. 
 
 Through the automated release workflow configured in [release.yml](file:///home/alamgir-zk/Cluster-Family/cluster-family-builds/cluster-lang-release/.github/workflows/release.yml), every release push automatically compiles the runner into standalone, single-file native executables:
 * **Linux:** `cluster-v0.1-linux`

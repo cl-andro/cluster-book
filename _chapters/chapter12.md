@@ -40,12 +40,12 @@ graph TD
 
 ### A. Enterprise Server Target
 By default, the compiler outputs full C++20 code utilizing multi-threaded thread pools, raw Linux sockets, and standard database interfaces.
-*   **Command:** `python3 run.py build main.cl`
+*   **Command:** `cluster build main.cl`
 *   **Outputs:** Optimized ELF binary.
 
 ### B. Bare-Metal Microcontroller Target (`--safe`)
 When compiling with the `--safe` flag, the compiler isolates the code from the OS.
-*   **Command:** `python3 run.py build main.cl --safe`
+*   **Command:** `cluster build main.cl --safe`
 *   **Features:**
     *   Excludes standard OS headers (sockets, thread pools, file systems).
     *   Generates a single, lightweight C++ file (`main.cpp`) and helper header (`cluster_core.hpp`).
@@ -54,7 +54,7 @@ When compiling with the `--safe` flag, the compiler isolates the code from the O
 
 ### C. Web Browser Target (`--wasm`)
 By passing the `--wasm` flag, the compiler leverages Emscripten toolchains to output browser-ready code.
-*   **Command:** `python3 run.py build main.cl --wasm`
+*   **Command:** `cluster build main.cl --wasm`
 *   **Outputs:** HTML, JS, and WebAssembly (`.wasm`) files that run directly inside the browser's sandbox.
 
 ---

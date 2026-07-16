@@ -46,7 +46,7 @@ image: "world_map.jpg"
 ### Step 2: Run the compiler
 Run the `.clv` file using the Cluster compiler:
 ```bash
-python3 run.py world_map.clv
+cluster world_map.clv
 ```
 This automatically starts a local HTTP server on `http://localhost:8080` and opens your default browser.
 

@@ -64,7 +64,7 @@ For AI code editors and automated build agents, the compiler supports a structur
 Executing compilation with the `--json-errors` flag formats parser syntax and typechecker diagnostics into a structured JSON array:
 
 ```bash
-python3 run.py my_code.cl --json-errors
+cluster my_code.cl --json-errors
 ```
 
 **Example output:**
