@@ -72,4 +72,8 @@ description: "Learn Cluster-lang from the ground up. A high-performance systems 
         <div class="card-num">Chapter 15</div>
         <div class="card-title">Native AI Primitives & Compilation Secrecy</div>
     </a>
+    <a class="chapter-card" href="{{ '/chapter16/' | relative_url }}">
+        <div class="card-num">Chapter 16</div>
+        <div class="card-title">The Cluster-Jekyll Hybrid Compiler Bridge</div>
+    </a>
 </div>

@@ -4,6 +4,8 @@ title: "Chapter 15: Native AI Primitives & Compilation Secrecy"
 permalink: /chapter15/
 prev_chapter: /chapter14/
 prev_title: "Chapter 14"
+next_chapter: /chapter16/
+next_title: "Chapter 16"
 ---
 
 # Chapter 15: Native AI Primitives & Compilation Secrecy
