@@ -77,6 +77,7 @@ Standard Jekyll suffers from a lack of dynamic server-side capabilities. With Cl
 * **Server-Side Rendering (SSR):** Inject database queries (`table` and `sqlite` operations) directly into your layouts.
 * **Dynamic APIs:** Run `serve_api` alongside the static server on the same binary to serve JSON API responses.
 * **Native AI Integrations:** Execute dynamic LLM content hydration at runtime using `ai_ask`.
+* **Embedding Cluster Language:** Developers can embed native Cluster-lang expressions and statements directly into their site templates and markdown files. During compilation, the compiler bridge generates a unified `.cl` source file that compiles into the final native `.out` binary, executing custom Cluster logic at runtime.
 
 ---
 
