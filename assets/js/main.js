@@ -19,10 +19,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Highlight active sidebar link
-    const currentPath = window.location.pathname.replace(/\/$/, '');
+    const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
     document.querySelectorAll('.sidebar-nav a').forEach(function(link) {
-        const linkPath = link.getAttribute('href').replace(/\/$/, '');
-        if (currentPath.endsWith(linkPath) || currentPath.endsWith(linkPath.replace('.html', ''))) {
+        const linkHref = link.getAttribute('href');
+        if (!linkHref) return;
+        const linkPath = linkHref.replace(/\/$/, '') || '/';
+        if (currentPath === linkPath || (linkPath !== '/' && currentPath.endsWith(linkPath))) {
             link.classList.add('active');
         }
     });

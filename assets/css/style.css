@@ -214,12 +214,24 @@ body {
     line-height: 1.6;
 }
 
+/* Syntax Highlighting */
+.highlight { background: #0d0d18; }
+.highlight .k, .highlight .kd, .highlight .kr, .highlight .kn { color: #ff79c6; font-weight: 600; } /* Keywords */
+.highlight .s, .highlight .s1, .highlight .s2, .highlight .sb, .highlight .sc { color: #f1fa8c; } /* Strings */
+.highlight .nf, .highlight .fm, .highlight .nc { color: #50fa7b; font-weight: 600; } /* Functions & Classes */
+.highlight .m, .highlight .mi, .highlight .mf, .highlight .kt, .highlight .nb { color: #bd93f9; } /* Numbers & Types */
+.highlight .c, .highlight .c1, .highlight .cm, .highlight .ch { color: #6272a4; font-style: italic; } /* Comments */
+.highlight .nv, .highlight .no, .highlight .vc, .highlight .vg { color: #ffb86c; } /* Variables */
+.highlight .o, .highlight .p { color: #ff79c6; } /* Operators & Punctuation */
+
 /* ========== TABLES ========== */
 .main-content table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 24px;
     font-size: 14px;
+    display: block;
+    overflow-x: auto;
 }
 
 .main-content thead th {
@@ -243,13 +255,17 @@ body {
 
 /* ========== BLOCKQUOTES / ALERTS ========== */
 .main-content blockquote {
-    border-left: 3px solid var(--accent-cyan);
-    background: rgba(0, 255, 204, 0.05);
-    padding: 14px 20px;
-    margin: 16px 0;
-    border-radius: 0 8px 8px 0;
+    border-left: 4px solid var(--accent-cyan);
+    background: rgba(0, 255, 204, 0.06);
+    padding: 16px 20px;
+    margin: 20px 0;
+    border-radius: 0 10px 10px 0;
     color: var(--text-secondary);
     font-size: 14px;
+}
+
+.main-content blockquote p {
+    margin-bottom: 0;
 }
 
 /* ========== CHAPTER NAVIGATION ========== */
