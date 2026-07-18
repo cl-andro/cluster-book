@@ -9,7 +9,11 @@
     {% seo %}
 </head>
 <body>
-    <button class="mobile-toggle" aria-label="Toggle navigation">☰</button>
+    <header class="mobile-header">
+        <a href="{{ '/' | relative_url }}" class="mobile-logo">The Cluster Book</a>
+        <button class="mobile-toggle" aria-label="Toggle navigation">☰</button>
+    </header>
+    <div class="sidebar-backdrop"></div>
     {% include sidebar.html %}
     <main class="main-content">
         {{ content }}
