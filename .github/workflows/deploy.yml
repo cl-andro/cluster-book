@@ -28,6 +28,9 @@ jobs:
       - name: Build Site with Cluster-Jekyll Action
         uses: cl-andro/cluster-lang-release@main
 
+      - name: Ensure .nojekyll bypass file exists
+        run: touch _site/.nojekyll
+
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
