@@ -76,4 +76,12 @@ description: "Learn Cluster-lang from the ground up. A high-performance systems 
         <div class="card-num">Chapter 16</div>
         <div class="card-title">The Cluster-Jekyll Hybrid Compiler Bridge</div>
     </a>
+    <a class="chapter-card" href="{{ '/chapter17/' | relative_url }}">
+        <div class="card-num">Chapter 17</div>
+        <div class="card-title">AI/ML Training and High-Performance Tensor Operations</div>
+    </a>
+    <a class="chapter-card" href="{{ '/chapter18/' | relative_url }}">
+        <div class="card-num">Chapter 18</div>
+        <div class="card-title">Dual-Semantics Ownership & Lifetime Safety</div>
+    </a>
 </div>

@@ -24,3 +24,8 @@ defaults:
       type: "chapters"
     values:
       layout: "chapter"
+
+# Cluster-Jekyll High-Performance Settings
+cluster_engine: true
+markdown: gfm
+highlighter: cluster_dark_neon
