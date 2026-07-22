@@ -4,6 +4,8 @@ title: "Chapter 18: Dual-Semantics Ownership & Lifetime Safety"
 permalink: /chapter18/
 prev_chapter: /chapter17/
 prev_title: "Chapter 17"
+next_chapter: /chapter19/
+next_title: "Chapter 19"
 ---
 
 # Chapter 18: Dual-Semantics Ownership & Lifetime Safety

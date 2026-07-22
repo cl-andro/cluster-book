@@ -84,4 +84,24 @@ description: "Learn Cluster-lang from the ground up. A high-performance systems 
         <div class="card-num">Chapter 18</div>
         <div class="card-title">Dual-Semantics Ownership & Lifetime Safety</div>
     </a>
+    <a class="chapter-card" href="{{ '/chapter19/' | relative_url }}">
+        <div class="card-num">Chapter 19</div>
+        <div class="card-title">Zero-Overhead Traits & C++20 Concept Constraints</div>
+    </a>
+    <a class="chapter-card" href="{{ '/chapter20/' | relative_url }}">
+        <div class="card-num">Chapter 20</div>
+        <div class="card-title">Inline Assembly & SIMD Vector Intrinsics</div>
+    </a>
+    <a class="chapter-card" href="{{ '/chapter21/' | relative_url }}">
+        <div class="card-num">Chapter 21</div>
+        <div class="card-title">Custom Memory Allocators</div>
+    </a>
+    <a class="chapter-card" href="{{ '/chapter22/' | relative_url }}">
+        <div class="card-num">Chapter 22</div>
+        <div class="card-title">Production HTTP & HTTPS Web Stack</div>
+    </a>
+    <a class="chapter-card" href="{{ '/chapter23/' | relative_url }}">
+        <div class="card-num">Chapter 23</div>
+        <div class="card-title">Pattern Matching, Channel Select & Defer</div>
+    </a>
 </div>
