@@ -85,13 +85,56 @@ fn main():
 
 ## 3. Direct Hardware Passthrough & Dev Mapping
 
-Unlike traditional VMs or emulators (like Termux on Android), Cluster Containers run directly on the host kernel. 
-
 By setting `share_hardware: true`, the container binds the host's `/dev` directory inside the sandbox. This gives the sandboxed execution script direct access to host GPU drivers (CUDA/NVIDIA), USB controllers, and physical interfaces without virtualization overhead or speed penalties.
 
 ---
 
-## 4. Comparison: `.clc` vs. Docker YAML
+## 4. Resource Allocation & Dynamic Load Balancing
+
+Cluster-lang handles host system resources (CPU cores, RAM size, GPU availability, and storage devices) in two ways:
+
+### 4.1 The Dynamic Resource Balancer
+By default, the compiler hosts a background resource load balancer. If multiple containers are active simultaneously without specific limits:
+* If **one container** is active, it receives up to 80-100% of PC resources.
+* If **multiple containers** spin up, the balancer dynamically re-calculates and allocates shares of RAM and CPU weights to ensure fair slice distribution and prevent system resource starvation.
+
+### 4.2 Manual Overrides & Device Mapping
+Developers can override the automatic balancer directly inside the `.clc` file to manually allocate strict boundaries:
+
+```yaml
+# Manual resource overrides
+cpu: 2.0                 # Limit container to 2.0 cores
+ram: 2G                  # Limit container to 2 Gigabytes of memory
+storage: 50G             # Capped storage workspace limit
+gpu: 1                   # Direct allocation of 1 GPU device
+
+# Attach external hardware storage mounts (SSDs, NVMe, HDDs)
+mount_external:
+    "/media/nvme_drive" -> "/mnt/storage"
+    "/media/usb" -> "/mnt/usb"
+```
+
+---
+
+## 5. Recipe-Based Dynamic Local Forging
+
+To avoid pulling heavy multi-gigabyte operating system container images, `clc` introduces a dual-mode package install system.
+
+### 5.1 Ultra-Lightweight GitHub Recipes
+Using the command-line tool, developers can run:
+```bash
+cl-container install gitea
+```
+This fetches a compressed package `<1KB` from GitHub containing the `.clc` configuration file and a simple installation shell script (e.g. `setup.sh`). 
+
+The compiler provisions a local isolated vacuum sandbox, bind-mounts host build dependencies, and executes the installer commands *inside the sandbox* to forge/build the application stack locally.
+
+### 5.2 Pre-Built Cache Fallback
+If the host is not capable of compiling or lacks dependencies, the compiler automatically checks for pre-compiled, Zstandard-compressed rootfs archives (`.tar.zst`) for the target system architecture in GitHub releases. If found, it fetches the precompiled archive as a fast-cache fallback, extracting it instantly into the sandbox.
+
+---
+
+## 6. Comparison: `.clc` vs. Docker YAML
 
 | Feature | Cluster Declarative `.clc` | Docker Compose YAML |
 | :--- | :--- | :--- |
@@ -102,7 +145,7 @@ By setting `share_hardware: true`, the container binds the host's `/dev` directo
 
 ---
 
-## 5. Advanced Programmable Container Orchestration
+## 7. Advanced Programmable Container Orchestration
 
 For custom workflows that require loops, conditionals, or complex mount systems, developers can write raw Cluster-lang scripts (`.cl` or `.zk`) utilizing the low-level `container` namespace APIs:
 
