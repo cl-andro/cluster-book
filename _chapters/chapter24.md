@@ -1,129 +1,129 @@
 ---
 layout: chapter
-title: "Chapter 24: Cluster Containers (clc) & Vacuum Sandboxing"
+title: "Chapter 24: Cluster Containers (clc) & Declarative Sandboxing (.clc)"
 permalink: /chapter24/
 prev_chapter: /chapter23/
 prev_title: "Chapter 23"
 ---
 
-# Chapter 24: Cluster Containers (clc) & Vacuum Sandboxing
+# Chapter 24: Cluster Containers (clc) & Declarative Sandboxing (.clc)
 
-Cluster-lang provides built-in, first-class support for programmatic containerization and filesystem isolation via the `container` namespace. Instead of relying on heavy daemons (like the Docker daemon) and static, error-prone YAML configurations (like Docker Compose or GitHub Actions files), Cluster-lang allows developers to define, run, and clean up container sandboxes directly using type-safe, compiled scripts.
+Cluster-lang provides built-in support for containerization and sandbox isolation. While advanced users can orchestrate sandboxes programmatically using the low-level `container` namespace, Cluster-lang introduces a specialized, ultra-lightweight declarative container configuration format: **`.clc` files**.
+
+Compared to verbose, nested YAML configurations (like Docker Compose or GitHub Actions files), `.clc` is 50% smaller, much cleaner to read, and is compiled directly into a native binary by the toolchain.
 
 ---
 
-## 1. Programmable Sandboxes (`container::create`)
+## 1. Writing Declarative Sandboxes (`.clc`)
 
-The `container` namespace maps directly to low-level Linux kernel primitives. A sandbox is initialized as a "vacuum chamber" directory. When executed, the sandbox uses Linux mount and PID namespaces to isolate the running process.
+A `.clc` file defines a container sandbox declaratively without any procedural boilerplate. There are no manual directory skeleton mounts, no `defer` blocks, and no manual cleanups. The toolchain handles all mounts and teardowns automatically.
 
-```python
-fn main():
-    // 1. Initialize a sandbox container context
-    c := container::create("sandbox-env", "/tmp/my_root", "sandbox-host")
-    
-    // 2. Setup standard directories
-    c.provision_skeleton()
-    
-    // 3. Bind mount dynamic libraries and tools from host (read-only)
-    c.bind_mount("/bin", "/bin", true)
-    c.bind_mount("/lib", "/lib", true)
-    c.bind_mount("/lib64", "/lib64", true)
-    c.bind_mount("/usr", "/usr", true)
-    
-    // 4. Mount procfs so tools like ps work
-    c.mount_proc()
+Here is a sample `.clc` file:
+
+```yaml
+# Sandbox configuration
+name: test-runner
+rootfs: /tmp/clc_sandbox
+hostname: sandbox-guest
+share_hardware: true
+
+# Environment variables
+env:
+    STAGE=production
+    DATABASE_URL=localhost:5432
+
+# Commands to run in sequence
+run:
+    "echo Starting workflow..."
+    "hostname"
+    "env | grep STAGE"
+```
+
+To compile and run this sandbox, invoke it directly through the compiler:
+```bash
+cl run my_sandbox.clc
 ```
 
 ---
 
-## 2. Direct Hardware Passthrough
+## 2. Under the Hood: Transparent Translation
 
-Unlike traditional virtual machines or restricted sandboxes (e.g., Termux on Android), Cluster Containers run natively on the host Linux kernel. They can access physical hardware devices (like GPUs, CUDA cores, audio cards, and USB controllers) with zero performance degradation.
+When the compiler detects a `.clc` file, it translates it transparently into a high-performance Cluster script under the hood, compiles it to native C++, and executes it. 
 
-This is achieved by calling `c.share_hardware()`, which mounts the host's `/dev` nodes directly into the containerized environment:
+The generated script maps the configuration keys to the built-in `container` standard library namespace:
 
 ```python
 fn main():
-    c := container::create("gpu-runner", "/tmp/gpu_sandbox", "cuda-host")
+    // Generated automatically from config keys
+    c := container::create("test-runner", "/tmp/clc_sandbox", "sandbox-guest")
     c.provision_skeleton()
-    c.bind_mount("/usr", "/usr", true)
-    c.bind_mount("/lib64", "/lib64", true)
     
-    // Map host device nodes into container /dev
+    // Automatically bind-mounts essential host binaries read-only
+    c.bind_mount("/bin", "/bin", true)
+    c.bind_mount("/lib", "/lib", true)
+    c.bind_mount("/lib64", "/lib64", true)
+    c.bind_mount("/usr", "/usr", true)
+    c.mount_proc()
+    
+    // Automatically shares device nodes for GPU/CUDA if share_hardware is true
     c.share_hardware()
     
-    // Run an isolated CUDA/GPU script
-    c.run("nvidia-smi")
+    // Injects environment variables
+    cpp_inject "setenv(\"STAGE\", \"production\", 1);"
+    cpp_inject "setenv(\"DATABASE_URL\", \"localhost:5432\", 1);"
+    
+    // Runs commands sequentially
+    c.run("echo Starting workflow...")
+    c.run("hostname")
+    c.run("env | grep STAGE")
+    
+    // Guarantees clean lazy unmounting and directory deletion
     c.cleanup()
 ```
 
 ---
 
-## 3. Self-Destructing Vacuum Sandboxes
+## 3. Direct Hardware Passthrough & Dev Mapping
 
-To prevent disk bloat and handle host resource constraints effectively, Cluster Containers implement deterministic cleanup. Using the `defer` block, mounts are automatically torn down and files are deleted when scope exits:
+Unlike traditional VMs or emulators (like Termux on Android), Cluster Containers run directly on the host kernel. 
 
-```python
-fn run_isolated():
-    c := container::create("job-runner", "/tmp/job_root", "job-host")
-    c.provision_skeleton()
-    c.bind_mount("/bin", "/bin", true)
-    
-    // Defer guarantees cleanup even if the function crashes
-    defer c.cleanup()
-    
-    c.run("/bin/sh -c 'echo Running task...'")
-    // Cleanup is automatically invoked here!
-```
-
-Under the hood, `c.cleanup()` performs lazy unmounting (`umount2` with the `MNT_DETACH` flag) on all tracked mount points to ensure lingering filesystems are safely detached, followed by recursive deletion of the sandbox root directory.
+By setting `share_hardware: true`, the container binds the host's `/dev` directory inside the sandbox. This gives the sandboxed execution script direct access to host GPU drivers (CUDA/NVIDIA), USB controllers, and physical interfaces without virtualization overhead or speed penalties.
 
 ---
 
-## 4. Comparison: Cluster vs. Docker/YAML
+## 4. Comparison: `.clc` vs. Docker YAML
 
-| Feature | Cluster Containers (`clc`) | Docker / Podman + YAML |
+| Feature | Cluster Declarative `.clc` | Docker Compose YAML |
 | :--- | :--- | :--- |
-| **Engine Requirements** | Zero (Runs natively via host system calls) | Requires Docker/Podman Daemon |
-| **Configuration Style** | Type-safe, compiled program code | Static, untyped YAML files |
-| **Execution Performance** | Native process execution (zero VM layers) | Container virtualization overhead |
-| **Hardware Access** | Direct dev-node sharing (`share_hardware()`) | Restricted configuration permissions |
-| **Cleanup Guarantees** | Deterministic scope-based `defer` | Manual prune or orphan container risk |
+| **Code Size** | Very compact (No boilerplate, implicit mounts) | Verbose (Needs explicit volume & image mapping) |
+| **Typing & Validation** | Compiled and checked at JIT time | Static, parsed at runtime |
+| **Daemon Overhead** | Zero (Runs as standard host process) | Requires active Docker/Podman Daemon |
+| **Cleanup Guarantee** | Self-destructs vacuum directory immediately | Requires manual prune/image deletion |
 
 ---
 
-## 5. Complete Example: Scriptable CI/CD Runner
+## 5. Advanced Programmable Container Orchestration
 
-This script represents a complete programmable job executor. It provisions a clean container filesystem, maps host devices, executes isolated commands, and guarantees a full teardown on completion:
+For custom workflows that require loops, conditionals, or complex mount systems, developers can write raw Cluster-lang scripts (`.cl` or `.zk`) utilizing the low-level `container` namespace APIs:
 
 ```python
-fn execute_task(task_cmd: string) -> int:
-    put "Preparing sandbox rootfs..."
-    c := container::create("task-runner", "/tmp/clc_sandbox", "runner-host")
+import std::container as container
+
+fn execute_custom_sandbox(sandbox_path: string) -> int:
+    c := container::create("custom-runner", sandbox_path, "custom-host")
     
-    // Auto-cleanup on exit
+    // Register auto-cleanup
     defer c.cleanup()
     
     c.provision_skeleton()
     
-    // Bind mount host binaries
+    // Dynamic bind mounts
     c.bind_mount("/bin", "/bin", true)
     c.bind_mount("/lib", "/lib", true)
     c.bind_mount("/lib64", "/lib64", true)
     c.bind_mount("/usr", "/usr", true)
-    
-    // Mount isolated processes interfaces
     c.mount_proc()
-    c.share_hardware()
     
-    put "Entering sandbox..."
-    exit_code := c.run(task_cmd)
-    
-    return exit_code
-
-fn main():
-    // Programmable loop to run multiple jobs
-    cmd := "/bin/sh -c 'echo Hostname inside sandbox:; hostname; ls -la /'"
-    status := execute_task(cmd)
-    put "Task exited with status code: " + to_text(status)
+    // Execute isolated task
+    return c.run("/bin/sh -c 'echo Inside custom sandbox'")
 ```
