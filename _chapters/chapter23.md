@@ -4,6 +4,8 @@ title: "Chapter 23: Pattern Matching, Channel Select & Defer"
 permalink: /chapter23/
 prev_chapter: /chapter22/
 prev_title: "Chapter 22"
+next_chapter: /chapter24/
+next_title: "Chapter 24"
 ---
 
 # Chapter 23: Pattern Matching, Channel Select & Defer

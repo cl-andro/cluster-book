@@ -104,4 +104,9 @@ description: "Learn Cluster-lang from the ground up. A high-performance systems 
         <div class="card-num">Chapter 23</div>
         <div class="card-title">Pattern Matching, Channel Select & Defer</div>
     </a>
+    <a class="chapter-card" href="{{ '/chapter24/' | relative_url }}">
+        <div class="card-num">Chapter 24</div>
+        <div class="card-title">Cluster Containers (clc) & Vacuum Sandboxing</div>
+    </a>
 </div>
+
