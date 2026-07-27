@@ -157,6 +157,14 @@ When mounting directories (like `/bin` or `/usr`) inside a container rootfs, Lin
 * **Monitored Paths (e.g., `/media`):** Linux desktop environments (like GNOME/KDE/XFCE) use services like `udisks2` to actively monitor `/media` and `/run/media` for removable drives. If your container's `rootfs` is located under `/media`, the file manager will display each bind mount (like `bin`, `lib`) as a separate connected hard drive in your sidebar.
 * **System Paths (e.g., `/var` or `/tmp`):** To avoid graphical desktop clutter, production containers are located under standard system paths like `/var/lib/clc/` or `/tmp/`. The desktop environment automatically ignores mounts in these paths, keeping your file manager sidebar completely clean. Once a running container is stopped (e.g., via `Ctrl+C`), the sandbox lazily unmounts all bindings and they disappear.
 
+### 6.3 Case Study: Running a Self-Contained Database (PostgreSQL)
+When launching database clusters inside a Cluster Container sandbox, the C++ runtime's automatic privilege-dropping model plays a key role:
+1. **Dynamic Database Roles:** PostgreSQL initializes database clusters (`initdb`) using the current running OS user's credentials. Because `clc` automatically drops execution privileges to the invoking host user (e.g. `john`), the database's administrative super-user role will match `john`'s host username, and not the hardcoded default `postgres`.
+2. **Access Commands:** When connecting to the running sandbox from the host via the command-line client (`psql`), you must pass the host username as the database user role:
+   ```bash
+   ./rootfs/opt/postgres/bin/psql -h 127.0.0.1 -U <your-host-username> -d postgres
+   ```
+
 ---
 
 ## 7. Advanced Programmable Container Orchestration
