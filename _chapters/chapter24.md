@@ -134,7 +134,7 @@ If the host is not capable of compiling or lacks dependencies, the compiler auto
 
 ---
 
-## 6. Comparison: `.clc` vs. Docker YAML
+## 6. Comparison & Key Advantages: `.clc` vs. Docker
 
 | Feature | Cluster Declarative `.clc` | Docker Compose YAML |
 | :--- | :--- | :--- |
@@ -142,6 +142,20 @@ If the host is not capable of compiling or lacks dependencies, the compiler auto
 | **Typing & Validation** | Compiled and checked at JIT time | Static, parsed at runtime |
 | **Daemon Overhead** | Zero (Runs as standard host process) | Requires active Docker/Podman Daemon |
 | **Cleanup Guarantee** | Self-destructs vacuum directory immediately | Requires manual prune/image deletion |
+| **Host Privilege Model** | Automatic drop to invoker UID/GID | Runs as root inside VM or needs rootless setup |
+| **Download Footprint** | Under 1KB for recipes (forged locally) | Hundreds of MBs / GBs of OS layers |
+
+### 6.1 Architectural Advantages over Docker
+
+* **Zero-Daemon Footprint:** Docker requires a background daemon (`dockerd`) running constantly, which consumes CPU and RAM even when no containers are active. Cluster Containers run as native Linux processes—when a container starts, it executes syscalls directly; when it stops, it leaves absolutely zero memory footprint.
+* **JIT Compilation Safety:** A `.clc` file compiles directly into C++ and machine code. Syntax errors, missing directory bindings, or type mismatches are caught before execution, preventing runtime failures common in untyped YAML files.
+* **Dynamic Resource load-balancing:** The compiler balances system limits dynamically across running sandboxes, allowing a single active container to consume 100% of resources and automatically scaling down slices as new sandboxes open.
+* **Dynamic Privilege Dropping:** While namespaces are mounted using root privileges, the sandboxed process immediately drops its UID/GID to the invoking user, ensuring full write access to user files without posing system-wide security risks.
+
+### 6.2 Host Desktop Mount Behavior
+When mounting directories (like `/bin` or `/usr`) inside a container rootfs, Linux registers these as bind mounts.
+* **Monitored Paths (e.g., `/media`):** Linux desktop environments (like GNOME/KDE/XFCE) use services like `udisks2` to actively monitor `/media` and `/run/media` for removable drives. If your container's `rootfs` is located under `/media`, the file manager will display each bind mount (like `bin`, `lib`) as a separate connected hard drive in your sidebar.
+* **System Paths (e.g., `/var` or `/tmp`):** To avoid graphical desktop clutter, production containers are located under standard system paths like `/var/lib/clc/` or `/tmp/`. The desktop environment automatically ignores mounts in these paths, keeping your file manager sidebar completely clean. Once a running container is stopped (e.g., via `Ctrl+C`), the sandbox lazily unmounts all bindings and they disappear.
 
 ---
 
