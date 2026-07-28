@@ -98,15 +98,32 @@ By default, the compiler hosts a background resource load balancer. If multiple 
 * If **one container** is active, it receives up to 80-100% of PC resources.
 * If **multiple containers** spin up, the balancer dynamically re-calculates and allocates shares of RAM and CPU weights to ensure fair slice distribution and prevent system resource starvation.
 
-### 4.2 Manual Overrides & Device Mapping
-Developers can override the automatic balancer directly inside the `.clc` file to manually allocate strict boundaries:
+### 4.2 Manual Overrides & cgroups v2 Enforced Boundaries
+Developers can override the dynamic resource balancer directly inside the `.clc` file to manually allocate strict kernel-enforced limits:
 
 ```yaml
-# Manual resource overrides
-cpu: 2.0                 # Limit container to 2.0 cores
-ram: 2G                  # Limit container to 2 Gigabytes of memory
-storage: 50G             # Capped storage workspace limit
-gpu: 1                   # Direct allocation of 1 GPU device
+# Manual resource overrides (cgroups v2 limits)
+limit_cpu: 0.5           # Limit container execution to 0.5 CPU core quota
+limit_memory: 128M       # Limit container memory footprint to 128MB
+```
+
+### 4.3 Network Namespace Isolation & Host Access Toggle
+By default, a Cluster Container shares the host's network namespace. This ensures zero packet-routing overhead and JIT direct-to-hardware network performance, making guest database ports immediately accessible on `127.0.0.1`.
+
+For complete network security and isolation, developers can enable network namespace isolation:
+
+```yaml
+isolate_network: true    # Unshares network namespace (CLONE_NEWNET)
+```
+
+* **Network isolation behavior:** Under network isolation, the runner unshares the net namespace and dynamically provisions and activates the guest loopback interface (`lo`). 
+* **Toggling Host Access:** If a service (such as `memcached` or `redis`) has `isolate_network: true` enabled and you wish to expose it back to your host machine for development testing:
+  1. Set `isolate_network: false` (or comment the line out) in your `.clc` recipe configuration.
+  2. Forge the changes and start the sandbox:
+     ```bash
+     sudo ./cl-container install <recipe-name>
+     sudo ./cl-container run <recipe-name>
+     ```
 
 # Attach external hardware storage mounts (SSDs, NVMe, HDDs)
 mount_external:
