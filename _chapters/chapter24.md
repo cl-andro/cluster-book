@@ -125,6 +125,41 @@ isolate_network: true    # Unshares network namespace (CLONE_NEWNET)
      sudo ./cl-container run <recipe-name>
      ```
 
+### 4.4 Shared Host Libraries vs. Strict Isolation
+
+To provide maximum memory efficiency, `clc` supports **Shared Page Cache Memory** by default.
+
+```yaml
+share_host_libs: true     # Mounts host /bin, /lib, /lib64, /usr (Default)
+```
+
+* **How it works:** When set to `true`, the runner mounts the host's operating system directories read-only. The Linux Kernel Page Cache shares dynamic libraries (like `libssl.so` or `libc.so`) in host physical RAM across all running containers, saving gigabytes of memory on high-density host servers.
+* **Strict Isolation Mode:** If you are deploying containers on a host with a different Linux distribution (e.g. running an Alpine rootfs container on a Debian host), or you want absolute dependency isolation, disable host library sharing:
+  ```yaml
+  share_host_libs: false   # Strict sandbox isolation
+  ```
+  *Note: Under strict isolation, the container guest `rootfs` must contain its own system libraries, shell binaries (`/bin/sh`), and base operating system files.*
+
+### 4.5 User Namespace Mapping (`userns`)
+
+To enable rootless sandbox security, `clc` uses User Namespaces (`CLONE_NEWUSER`) by default:
+
+```yaml
+userns: true              # Maps guest root to host user (Default)
+```
+
+* **How it works:** User namespaces map the unprivileged host user's UID (e.g., `1000`) to UID `0` (root) inside the container namespace.
+* **Benefits:**
+  * **Root Privileges inside the guest:** The application runs as UID 0 (root) *inside* the container, allowing it to bind to privileged ports (under 1024) or execute internal mount commands.
+  * **Zero Privileges outside the guest:** On the host system, the container has no root access or administrative rights. If a containerized application is compromised, the attacker is locked into the privileges of the unprivileged host user (UID 1000).
+
+---
+
+## 5. Mounting External Devices & Storage
+
+Developers can attach external volumes, storage drives, or custom directories to their sandboxes:
+
+```yaml
 # Attach external hardware storage mounts (SSDs, NVMe, HDDs)
 mount_external:
     "/media/nvme_drive" -> "/mnt/storage"
@@ -133,7 +168,7 @@ mount_external:
 
 ---
 
-## 5. Recipe-Based Dynamic Local Forging
+## 6. Recipe-Based Dynamic Local Forging
 
 To avoid pulling heavy multi-gigabyte operating system container images, `clc` introduces a dual-mode package install system.
 
@@ -151,7 +186,7 @@ If the host is not capable of compiling or lacks dependencies, the compiler auto
 
 ---
 
-## 6. Comparison & Key Advantages: `.clc` vs. Docker
+## 7. Comparison & Key Advantages: `.clc` vs. Docker
 
 | Feature | Cluster Declarative `.clc` | Docker Compose YAML |
 | :--- | :--- | :--- |
@@ -162,19 +197,19 @@ If the host is not capable of compiling or lacks dependencies, the compiler auto
 | **Host Privilege Model** | Automatic drop to invoker UID/GID | Runs as root inside VM or needs rootless setup |
 | **Download Footprint** | Under 1KB for recipes (forged locally) | Hundreds of MBs / GBs of OS layers |
 
-### 6.1 Architectural Advantages over Docker
+### 7.1 Architectural Advantages over Docker
 
 * **Zero-Daemon Footprint:** Docker requires a background daemon (`dockerd`) running constantly, which consumes CPU and RAM even when no containers are active. Cluster Containers run as native Linux processes—when a container starts, it executes syscalls directly; when it stops, it leaves absolutely zero memory footprint.
 * **JIT Compilation Safety:** A `.clc` file compiles directly into C++ and machine code. Syntax errors, missing directory bindings, or type mismatches are caught before execution, preventing runtime failures common in untyped YAML files.
 * **Dynamic Resource load-balancing:** The compiler balances system limits dynamically across running sandboxes, allowing a single active container to consume 100% of resources and automatically scaling down slices as new sandboxes open.
 * **Dynamic Privilege Dropping:** While namespaces are mounted using root privileges, the sandboxed process immediately drops its UID/GID to the invoking user, ensuring full write access to user files without posing system-wide security risks.
 
-### 6.2 Host Desktop Mount Behavior
+### 7.2 Host Desktop Mount Behavior
 When mounting directories (like `/bin` or `/usr`) inside a container rootfs, Linux registers these as bind mounts.
 * **Monitored Paths (e.g., `/media`):** Linux desktop environments (like GNOME/KDE/XFCE) use services like `udisks2` to actively monitor `/media` and `/run/media` for removable drives. If your container's `rootfs` is located under `/media`, the file manager will display each bind mount (like `bin`, `lib`) as a separate connected hard drive in your sidebar.
 * **System Paths (e.g., `/var` or `/tmp`):** To avoid graphical desktop clutter, production containers are located under standard system paths like `/var/lib/clc/` or `/tmp/`. The desktop environment automatically ignores mounts in these paths, keeping your file manager sidebar completely clean. Once a running container is stopped (e.g., via `Ctrl+C`), the sandbox lazily unmounts all bindings and they disappear.
 
-### 6.3 Case Study: Running a Self-Contained Database (PostgreSQL)
+### 7.3 Case Study: Running a Self-Contained Database (PostgreSQL)
 When launching database clusters inside a Cluster Container sandbox, the C++ runtime's automatic privilege-dropping model plays a key role:
 1. **Dynamic Database Roles:** PostgreSQL initializes database clusters (`initdb`) using the current running OS user's credentials. Because `clc` automatically drops execution privileges to the invoking host user (e.g. `john`), the database's administrative super-user role will match `john`'s host username, and not the hardcoded default `postgres`.
 2. **Access Commands:** When connecting to the running sandbox from the host via the command-line client (`psql`), you must pass the host username as the database user role:
@@ -184,7 +219,7 @@ When launching database clusters inside a Cluster Container sandbox, the C++ run
 
 ---
 
-## 7. Advanced Programmable Container Orchestration
+## 8. Advanced Programmable Container Orchestration
 
 For custom workflows that require loops, conditionals, or complex mount systems, developers can write raw Cluster-lang scripts (`.cl` or `.zk`) utilizing the low-level `container` namespace APIs:
 
