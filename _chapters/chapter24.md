@@ -217,6 +217,28 @@ When launching database clusters inside a Cluster Container sandbox, the C++ run
    ./rootfs/opt/postgres/bin/psql -h 127.0.0.1 -U <your-host-username> -d postgres
    ```
 
+### 7.4 Case Study: Utilizing Compiler and Runtime Environments (Python & Go)
+For compiler and interpreter containers (such as `python-runtime` or `golang-compiler`), the default execution command in the recipe (e.g., `python3 --version` or `go version`) is configured as a simple startup sanity test. To leverage these containers for interactive development or building custom applications, developers can utilize two primary patterns:
+
+1. **Interactive Shell Execution:**
+   By modifying the `run:` directive in the `.clc` file to target a shell (such as `/bin/bash` or `/bin/sh`), the runner launches an interactive terminal inside the sandbox namespaces. The container remains active and only terminates when you type `exit`:
+   ```yaml
+   # runtimes/python/python.clc
+   run:
+       "/bin/bash"
+   ```
+
+2. **Mounting External Workspaces:**
+   To build or execute host-side application source code within the compiler container, use the `mount_external:` block to bind-mount the host workspace directory, and update the execution target:
+   ```yaml
+   # runtimes/python/python.clc
+   mount_external:
+       "/home/user/my-python-app -> /app"
+
+   run:
+       "python3 /app/main.py"
+   ```
+
 ---
 
 ## 8. Advanced Programmable Container Orchestration
