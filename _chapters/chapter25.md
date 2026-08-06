@@ -4,6 +4,8 @@ title: "Chapter 25: Bootstrapping a Custom Operating System (Cluster OS)"
 permalink: /chapter25/
 prev_chapter: /chapter24/
 prev_title: "Chapter 24"
+next_chapter: /chapter26/
+next_title: "Chapter 26"
 ---
 
 # Chapter 25: Bootstrapping a Custom Operating System (Cluster OS)

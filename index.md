@@ -108,5 +108,13 @@ description: "Learn Cluster-lang from the ground up. A high-performance systems 
         <div class="card-num">Chapter 24</div>
         <div class="card-title">Cluster Containers (clc) & Vacuum Sandboxing</div>
     </a>
+    <a class="chapter-card" href="{{ '/chapter25/' | relative_url }}">
+        <div class="card-num">Chapter 25</div>
+        <div class="card-title">Bootstrapping a Custom Operating System (Cluster OS)</div>
+    </a>
+    <a class="chapter-card" href="{{ '/chapter26/' | relative_url }}">
+        <div class="card-num">Chapter 26</div>
+        <div class="card-title">Cybersecurity, Memory Manipulation & Live Dynamic Hot-Patching</div>
+    </a>
 </div>
 
