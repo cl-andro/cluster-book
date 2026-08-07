@@ -116,5 +116,9 @@ description: "Learn Cluster-lang from the ground up. A high-performance systems 
         <div class="card-num">Chapter 26</div>
         <div class="card-title">Cybersecurity, Memory Manipulation & Live Dynamic Hot-Patching</div>
     </a>
+    <a class="chapter-card" href="{{ '/chapter27/' | relative_url }}">
+        <div class="card-num">Chapter 27</div>
+        <div class="card-title">Static Binary File Patching & Rewriting</div>
+    </a>
 </div>
 

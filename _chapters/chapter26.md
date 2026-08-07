@@ -4,6 +4,8 @@ title: "Chapter 26: Cybersecurity, Memory Manipulation & Live Dynamic Hot-Patchi
 permalink: /chapter26/
 prev_chapter: /chapter25/
 prev_title: "Chapter 25"
+next_chapter: /chapter27/
+next_title: "Chapter 27"
 ---
 
 # Chapter 26: Cybersecurity, Memory Manipulation & Live Dynamic Hot-Patching
